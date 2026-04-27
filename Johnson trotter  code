@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define LEFT -1
+#define RIGHT 1
+
+// Function to print the current permutation
+void printPermutation(int arr[], int n) {
+    for (int i = 0; i < n; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+
+// Function to find the largest mobile integer
+int getMobile(int arr[], int dir[], int n) {
+    int mobile = 0;
+    for (int i = 0; i < n; i++) {
+        if (dir[i] == LEFT && i != 0 && arr[i] > arr[i - 1] && arr[i] > mobile)
+            mobile = arr[i];
+        if (dir[i] == RIGHT && i != n - 1 && arr[i] > arr[i + 1] && arr[i] > mobile)
+            mobile = arr[i];
+    }
+    return mobile;
+}
+
+// Function to get position of mobile integer
+int getPosition(int arr[], int n, int mobile) {
+    for (int i = 0; i < n; i++)
+        if (arr[i] == mobile)
+            return i;
+    return -1;
+}
+
+// Johnson–Trotter algorithm
+void generatePermutations(int n) {
+    int arr[n], dir[n];
+
+    // Initialize array and directions
+    for (int i = 0; i < n; i++) {
+        arr[i] = i + 1;
+        dir[i] = LEFT;
+    }
+
+    printPermutation(arr, n);
+
+    while (1) {
+        int mobile = getMobile(arr, dir, n);
+        if (mobile == 0) break; // No more mobile integers
+
+        int pos = getPosition(arr, n, mobile);
+
+        // Swap according to direction
+        if (dir[pos] == LEFT) {
+            int temp = arr[pos];
+            arr[pos] = arr[pos - 1];
+            arr[pos - 1] = temp;
+
+            int tempDir = dir[pos];
+            dir[pos] = dir[pos - 1];
+            dir[pos - 1] = tempDir;
+        } else if (dir[pos] == RIGHT) {
+            int temp = arr[pos];
+            arr[pos] = arr[pos + 1];
+            arr[pos + 1] = temp;
+
+            int tempDir = dir[pos];
+            dir[pos] = dir[pos + 1];
+            dir[pos + 1] = tempDir;
+        }
+
+        // After swap, reverse direction of all integers greater than mobile
+        for (int i = 0; i < n; i++) {
+            if (arr[i] > mobile)
+                dir[i] = (dir[i] == LEFT) ? RIGHT : LEFT;
+        }
+
+        printPermutation(arr, n);
+    }
+}
+
+int main() {
+    int n;
+    printf("Enter number of elements: ");
+    scanf("%d", &n);
+
+    generatePermutations(n);
+
+    return 0;
+}
